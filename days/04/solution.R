@@ -2,7 +2,7 @@
 library(magrittr)
 
 # Input ------------------------------------------------------------------
-read_input <- function(file_path = "days/04/input.txt") {
+read_input <- function(file_path = "./days/04/input.txt") {
     input <- readLines(file_path)
     drawn_numbers <- input[1] %>% strsplit(",") %>% unlist() %>% as.integer()
 

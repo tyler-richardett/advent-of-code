@@ -5,25 +5,24 @@ library(magrittr)
 read_input <- function(file_path = "./days/09/input.txt") {
     heights <- readLines(file_path)
     heights <- heights %>% strsplit("") %>% unlist() %>% as.integer()
-    heights <- matrix(heights, nrow = 100, ncol = 100, byrow = TRUE)
 
+    height_matrix <- matrix(heights, nrow = 100, ncol = 100, byrow = TRUE)
+    return(height_matrix)
+}
+
+# Helpers ----------------------------------------------------------------
+sum_risk_levels <- function(height_matrix) {
     height_map <- table(1:100, 1:100) %>%
         as.data.frame() %>%
         dplyr::rowwise() %>%
         dplyr::mutate(
             x = as.integer(Var2),
             y = as.integer(Var1),
-            height = heights[x, y]
+            height = height_matrix[x, y]
         ) %>%
         dplyr::ungroup() %>%
-        dplyr::select(x:height) %>%
-        get_adjacent_values()
+        dplyr::select(x:height)
 
-    return(height_map)
-}
-
-# Helpers ----------------------------------------------------------------
-get_adjacent_values <- function(height_map) {
     adjacent_values <- height_map %>%
         dplyr::group_by(x) %>%
         dplyr::arrange(y) %>%
@@ -40,10 +39,6 @@ get_adjacent_values <- function(height_map) {
         ) %>%
         dplyr::ungroup()
 
-    return(adjacent_values)
-}
-
-sum_risk_levels <- function(adjacent_values) {
     risk_levels <- adjacent_values %>%
         dplyr::filter(
             height < left,
@@ -57,29 +52,17 @@ sum_risk_levels <- function(adjacent_values) {
     return(sum(risk_levels))
 }
 
-find_basins <- function(adjacent_values) {
-    edge_origins <- adjacent_values %>%
-        dplyr::arrange(x, y) %>%
-        dplyr::mutate(idx = dplyr::row_number()) %>%
-        dplyr::filter(height < 9)
+prod_largest_basin_sizes <- function(height_matrix, n = 3) {
+    height_matrix[height_matrix < 9] <- 1
+    height_matrix[height_matrix == 9] <- 0
 
-    edges <- data.frame()
-    for (row in split(edge_origins, rownames(edge_origins))) {
-        if (row$left < 9)  edges <- edges %>% dplyr::bind_rows(data.frame(from = row$idx, to = row$idx - 1L))
-        if (row$right < 9) edges <- edges %>% dplyr::bind_rows(data.frame(from = row$idx, to = row$idx + 1L))
-        if (row$above < 9) edges <- edges %>% dplyr::bind_rows(data.frame(from = row$idx, to = row$idx - 100L))
-        if (row$below < 9) edges <- edges %>% dplyr::bind_rows(data.frame(from = row$idx, to = row$idx + 100L))
-    }
+    basins <- wvtool::cc.label(height_matrix, 4) %>% .$summary
+    prod_top_n_basins <- basins %>%
+        dplyr::top_n(n, area) %>%
+        dplyr::pull(area) %>%
+        prod()
 
-    basins <- tidygraph::tbl_graph(edges = edges) %>% tidygraph::to_components()
-    return(basins)
-}
-
-get_largest_basin_sizes <- function(basins, n = 3) {
-    basin_sizes <- lapply(basins, function(x) x %>% as.data.frame() %>% nrow()) %>% unlist()
-    top_n_basins <- sort(basin_sizes, decreasing = TRUE) %>% head(n)
-
-    return(top_n_basins)
+    return(prod_top_n_basins)
 }
 
 # Puzzle 1 ---------------------------------------------------------------
@@ -87,9 +70,5 @@ risk_level <- read_input() %>% sum_risk_levels()
 cat("Puzzle 1 solution:", risk_level, fill = TRUE)
 
 # Puzzle 2 ---------------------------------------------------------------
-largest_basins <- read_input() %>%
-    find_basins() %>%
-    get_largest_basin_sizes() %>%
-    prod()
-
-cat("Puzzle 2 solution:", largest_basins, fill = TRUE)
+min_distance <- read_input() %>% prod_largest_basin_sizes()
+cat("Puzzle 2 solution:", min_distance, fill = TRUE)

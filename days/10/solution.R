@@ -7,16 +7,14 @@ read_input <- function(file_path = "./days/10/input.txt") {
         subsystem_line = readLines(file_path),
         stringsAsFactors = FALSE
     ) %>%
-        dplyr::rowwise() %>%
         dplyr::mutate(
-            simplified = simplify_line(subsystem_line),
+            simplified = purrr:::map_chr(subsystem_line, simplify_line),
             line_type = ifelse(
                 grepl(CLOSING_CHARACTERS, simplified),
                 "corrupted",
                 "incomplete"
             )
-        ) %>%
-        dplyr::ungroup()
+        )
 
     return(subsystem_lines)
 }
@@ -42,12 +40,10 @@ simplify_line <- function(subsystem_line) {
 score_corrupted <- function(subsystem_lines) {
     score <- subsystem_lines %>%
         dplyr::filter(line_type == "corrupted") %>%
-        dplyr::rowwise() %>%
         dplyr::mutate(
-            illegal_character = substr(gsub(OPENING_CHARACTERS, "", simplified), 1, 1),
-            score = SCORING$score[SCORING$char == illegal_character]
+            illegal_character = purrr::map_chr(simplified, ~substr(gsub(OPENING_CHARACTERS, "", .x), 1, 1)),
+            score = purrr::map_dbl(illegal_character, ~SCORING$score[SCORING$char == .])
         ) %>%
-        dplyr::ungroup() %>%
         dplyr::pull(score)
 
     return(sum(score))
@@ -65,9 +61,7 @@ score_incomplete <- function(subsystem_lines) {
 
     score <- subsystem_lines %>%
         dplyr::filter(line_type == "incomplete") %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(score = tally_score(simplified)) %>%
-        dplyr::ungroup() %>%
+        dplyr::mutate(score = purrr::map_dbl(simplified, tally_score)) %>%
         dplyr::pull(score)
 
     return(median(score))

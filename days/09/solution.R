@@ -14,13 +14,11 @@ read_input <- function(file_path = "./days/09/input.txt") {
 sum_risk_levels <- function(height_matrix) {
     height_map <- table(1:100, 1:100) %>%
         as.data.frame() %>%
-        dplyr::rowwise() %>%
         dplyr::mutate(
             x = as.integer(Var2),
             y = as.integer(Var1),
-            height = height_matrix[x, y]
+            height = purrr::map2_int(x, y, ~height_matrix[.x, .y])
         ) %>%
-        dplyr::ungroup() %>%
         dplyr::select(x:height)
 
     adjacent_values <- height_map %>%

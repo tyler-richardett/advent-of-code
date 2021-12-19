@@ -9,6 +9,13 @@
     ]
   },
   "Packages": {
+    "BMS": {
+      "Package": "BMS",
+      "Version": "0.3.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "5f0d5907b3ec5fadce42dbe92733af4d"
+    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-51.5",
@@ -141,6 +148,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "ac5c6baf7822ce8732b343f14c072c4d"
+    },
+    "igraph": {
+      "Package": "igraph",
+      "Version": "1.2.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "66abc5ba63fe0543b3d7c5ec73b4230f"
     },
     "isoband": {
       "Package": "isoband",
@@ -330,6 +344,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "aabe25b882cb6da1b9571eb1f6240d06"
+    },
+    "zeallot": {
+      "Package": "zeallot",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ee9b643aa8331c45d8d82eb3a137c9bc"
     },
     "zoo": {
       "Package": "zoo",

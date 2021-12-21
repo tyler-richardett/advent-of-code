@@ -13,7 +13,7 @@ read_input <- function(file_path = "./2021/19/input.txt") {
         dplyr::mutate(beacon_id = dplyr::row_number()) %>%
         dplyr::select(scanner_id, beacon_id, x:z) %>%
 
-    return(beacons)
+        return(beacons)
 }
 
 # Helpers ----------------------------------------------------------------
